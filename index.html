@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EPAS Interactive Learning Module - Grade 11</title>
+    
+    <!-- Load Tailwind CSS for rapid, responsive UI styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Load FontAwesome for engaging technical icons used throughout the interface -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind Configuration for Custom Tech Theme -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        tech: {
+                            dark: '#0f172a',    // Deep slate background
+                            panel: '#1e293b',   // Lighter slate for panels
+                            accent: '#06b6d4',  // Cyan accent color
+                            accentHover: '#0891b2', // Darker cyan for hover states
+                            text: '#f8fafc',    // Off-white text for readability
+                            muted: '#94a3b8'    // Muted grey text for secondary info
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Base styles for the dark tech theme */
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden; /* Prevent horizontal scrolling on mobile */
+        }
+
+        /* Custom Scrollbar for a premium, unified look */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #06b6d4; 
+        }
+
+        /* Hide scrollbar for the tab navigation area on smaller screens */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Smooth tab transitions */
+        .tab-content {
+            display: none; /* Hidden by default */
+            animation: fadeIn 0.4s ease-in-out; /* Smooth fade when shown */
+        }
+        .tab-content.active {
+            display: block; /* Show when active class is added */
+        }
+
+        /* Fade In Animation Keyframes */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Accordion transition logic */
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, padding 0.4s ease, opacity 0.4s ease;
+            opacity: 0;
+        }
+        .accordion-content.open {
+            max-height: 1500px; /* Large max-height to accommodate all text/images */
+            padding-top: 1.5rem;
+            padding-bottom: 1.5rem;
+            opacity: 1;
+        }
+
+        /* Step Card animations for Lesson 2 (Multimeter Masterclass) */
+        .step-card {
+            display: none;
+            animation: slideInRight 0.4s forwards;
+        }
+        .step-card.active {
+            display: block;
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Glowing text and accent effects for the tech vibe */
+        .glow-accent {
+            box-shadow: 0 0 12px rgba(6, 182, 212, 0.4);
+        }
+        .glow-text {
+            text-shadow: 0 0 8px rgba(6, 182, 212, 0.6);
+        }
+
+        /* Thumbnail Image Styling */
+        .thumbnail-img {
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border: 2px solid #334155;
+            object-fit: cover;
+            aspect-ratio: 16/9;
+        }
+        .thumbnail-img:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.5);
+            border-color: #06b6d4;
+        }
+
+        /* Lightbox Overlay Styles */
+        #lightbox {
+            display: none; /* Hidden by default */
+            position: fixed;
+            inset: 0;
+            background-color: rgba(15, 23, 42, 0.95); /* Very dark slate, almost opaque */
+            backdrop-filter: blur(8px); /* Blurs the background behind the image */
+            z-index: 9999; /* Ensure it's on top of everything, including sticky headers */
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        #lightbox.active {
+            display: flex; /* Show as flex container when active */
+            opacity: 1;
+        }
+        
+        /* Lightbox image constraints */
+        #lightbox-img {
+            max-width: 90vw;
+            max-height: 80vh;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            border: 2px solid #06b6d4;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body class="bg-tech-dark min-h-screen flex flex-col text-tech-text">
+
+    <!-- ========================================== -->
+    <!-- SECTION: HEADER & NAVIGATION               -->
+    <!-- ========================================== -->
+    <header class="bg-tech-panel border-b border-gray-700 shadow-lg sticky top-0 z-40">
+        <div class="max-w-6xl mx-auto px-4 py-6">
+            <!-- Title Area -->
+            <div class="flex items-center justify-between flex-wrap gap-4 mb-4">
+                <div class="flex items-center gap-4">
+                    <i class="fa-solid fa-microchip text-4xl text-tech-accent glow-text"></i>
+                    <div>
+                        <h1 class="text-3xl md:text-4xl font-bold text-white tracking-wide">EPAS <span class="text-tech-accent">Interactive</span></h1>
+                        <p class="text-tech-muted text-sm md:text-base uppercase tracking-widest mt-1">Grade 11 Module Series</p>
+                    </div>
+                </div>
+                <!-- Google Sheet Control & Setup Modal Trigger (Hidden until teacher passcode is unlocked) -->
+                <div class="flex items-center gap-2">
+                    <div id="teacher-instructions-btn-container" class="hidden">
+                        <button onclick="openInstructionsModal()" class="bg-gray-800 hover:bg-gray-700 text-tech-accent border border-tech-accent px-3 py-2 rounded text-xs font-semibold flex items-center gap-2 transition-all shadow">
+                            <i class="fa-solid fa-circle-info"></i> How to Link Sheet
+                        </button>
+                    </div>
+                    <a id="btn-open-sheet-header" href="#" target="_blank" class="hidden bg-green-600 hover:bg-green-500 text-white px-3 py-2 rounded text-xs font-semibold flex items-center gap-2 transition-all shadow">
+                        <i class="fa-solid fa-file-excel"></i> Open Google Sheet
+                    </a>
+                </div>
+            </div>
+
+            <!-- Tab Navigation Buttons -->
+            <!-- These buttons trigger the switchTab JS function to change visible content -->
+            <nav class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                <!-- Lesson 1 Tab (Active by default) -->
+                <button onclick="switchTab('lesson1')" id="btn-lesson1" class="tab-btn px-6 py-3 rounded-t-lg font-semibold transition-all bg-tech-accent text-tech-dark glow-accent flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-toolbox"></i> Lesson 1: EPAS Overview
+                </button>
+                <!-- Lesson 2 Tab -->
+                <button onclick="switchTab('lesson2')" id="btn-lesson2" class="tab-btn px-6 py-3 rounded-t-lg font-semibold transition-all bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-bolt"></i> Lesson 2: Multimeter
+                </button>
+                <!-- Lesson 3 Tab -->
+                <button onclick="switchTab('lesson3')" id="btn-lesson3" class="tab-btn px-6 py-3 rounded-t-lg font-semibold transition-all bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-book-medical"></i> Lesson 3: Next Topics
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-6xl mx-auto w-full px-4 py-8">
+
+        <!-- Student Profile & Apps Script Config Bar -->
+        <div class="bg-tech-panel p-5 rounded-xl border border-gray-700 shadow-xl mb-8">
+            <h3 class="text-md font-bold text-tech-accent uppercase tracking-wider mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-user-graduate"></i> Student Profile & Data Integration
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 mb-1">Student Full Name *</label>
+                    <input type="text" id="student-name" placeholder="e.g. Juan Dela Cruz" class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-tech-accent">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 mb-1">Grade Level *</label>
+                    <input type="text" id="student-grade" value="Grade 11" class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-tech-accent">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 mb-1">Section *</label>
+                    <input type="text" id="student-section" placeholder="e.g. TVL-EPAS A" class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-tech-accent">
+                </div>
+                <div>
+                    <!-- Hidden input to store Web App URL for score submission -->
+                    <input type="hidden" id="web-app-url" value="https://script.google.com/macros/s/AKfycbyDMVTeBmHW-R9QXUHBCoMWbhT8hdXh1vvVn0C075H_h1jh6BK5Me2XXXOGrz-gghIJ/exec">
+                    
+                    <!-- Link button for opening Google Sheet -->
+                    <a id="btn-google-sheet-link" href="https://docs.google.com/spreadsheets" target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-4 rounded text-sm flex items-center justify-center gap-2 transition-all shadow-md">
+                        <i class="fa-solid fa-file-excel text-base"></i> Open Google Sheet Database
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- SECTION: LESSON 1 - EPAS OVERVIEW          -->
+        <!-- ========================================== -->
+        <section id="lesson1" class="tab-content active">
+            <!-- Introduction Panel -->
+            <div class="bg-tech-panel p-6 rounded-xl border border-gray-700 shadow-xl mb-8 relative overflow-hidden">
+                <div class="absolute top-0 right-0 opacity-5 text-9xl transform translate-x-4 -translate-y-4">
+                    <i class="fa-solid fa-microchip"></i>
+                </div>
+                <h2 class="text-2xl font-bold mb-4 text-tech-accent border-b border-gray-700 pb-2 flex items-center gap-2 relative z-10">
+                    <i class="fa-solid fa-book-open text-xl"></i> Introduction to EPAS
+                </h2>
+                <p class="text-lg leading-relaxed text-gray-300 relative z-10">
+                    Electronic Products Assembly and Servicing (EPAS) requires precision, safety, and a thorough understanding of the tools involved. Using the correct tool not only ensures the quality and longevity of electronic repairs and assemblies but also protects the technician from injury and the components from damage.
+                </p>
+                <div class="mt-4 inline-block bg-gray-800 border border-tech-accent text-tech-accent px-4 py-2 rounded shadow-sm text-sm font-semibold relative z-10">
+                    <i class="fa-solid fa-hand-pointer mr-2 animate-bounce"></i> Click on any image below to enlarge it in the lightbox viewer!
+                </div>
+            </div>
+
+            <h3 class="text-xl font-bold mb-4 text-white uppercase tracking-wider pl-2 border-l-4 border-tech-accent">Explore the Equipment Categories</h3>
+
+            <!-- Accordion Container for Lesson 1 Topics -->
+            <div class="space-y-4 mb-10">
+                
+                <!-- 1. Hand Tools Accordion -->
+                <div class="border border-gray-700 rounded-lg overflow-hidden bg-tech-panel shadow-md">
+                    <!-- Toggle Button calls toggleAccordion JS function -->
+                    <button class="w-full px-6 py-4 flex justify-between items-center bg-gray-800 hover:bg-gray-750 transition-colors group" onclick="toggleAccordion('acc-hand')">
+                        <span class="font-bold text-lg text-white group-hover:text-tech-accent flex items-center gap-3">
+                            <i class="fa-solid fa-wrench text-tech-muted group-hover:text-tech-accent transition-colors"></i> Hand Tools
+                        </span>
+                        <i class="fa-solid fa-chevron-down text-tech-muted transition-transform duration-300" id="icon-acc-hand"></i>
+                    </button>
+                    <!-- Content Area (hidden by default via max-height 0 in CSS) -->
+                    <div id="acc-hand" class="accordion-content px-6 bg-tech-panel text-gray-300">
+                        <div class="flex flex-col md:flex-row gap-6">
+                            <div class="flex-grow">
+                                <p class="mb-4 text-base">Hand tools are the foundational instruments for physical manipulation of electronic components, wires, and chassis hardware.</p>
+                                <ul class="list-disc pl-6 space-y-3">
+                                    <li><strong class="text-tech-accent">Pliers:</strong> Long-nose pliers are essential for holding tiny components, bending component leads, and retrieving dropped items in tight spaces. Side cutters (diagonal clippers) are used strictly for cutting wires and component leads flush to a circuit board.</li>
+                                    <li><strong class="text-tech-accent">Screwdrivers:</strong> Electronics require both standard (Phillips and flathead) screwdrivers for chassis screws and precision screwdrivers (sometimes called jeweler's screwdrivers) for the tiny screws holding internal components like hard drives or laptop casings.</li>
+                                    <li><strong class="text-tech-accent">Wire Strippers:</strong> Used to cleanly remove the plastic insulation from wires without nicking the conductive copper core beneath.</li>
+                                </ul>
+                            </div>
+                            <!-- Thumbnail Image linking to Lightbox -->
+                            <div class="md:w-1/3 flex-shrink-0 flex flex-col items-center justify-center">
+                                <img src="https://www.gadgetronicx.com/wp-content/uploads/2018/11/136-01.jpg" 
+                                     alt="Assortment of hand tools including pliers and cutters" 
+                                     class="w-full rounded-lg thumbnail-img"
+                                     onclick="openLightbox(this.src, this.alt)">
+                                <p class="text-xs text-center text-gray-400 mt-2 italic">Standard Hand Tools</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Electronic Tools Accordion -->
+                <div class="border border-gray-700 rounded-lg overflow-hidden bg-tech-panel shadow-md">
+                    <button class="w-full px-6 py-4 flex justify-between items-center bg-gray-800 hover:bg-gray-750 transition-colors group" onclick="toggleAccordion('acc-electronic')">
+                        <span class="font-bold text-lg text-white group-hover:text-tech-accent flex items-center gap-3">
+                            <i class="fa-solid fa-microscope text-tech-muted group-hover:text-tech-accent transition-colors"></i> Electronic Tools
+                        </span>
+                        <i class="fa-solid fa-chevron-down text-tech-muted transition-transform duration-300" id="icon-acc-electronic"></i>
+                    </button>
+                    <div id="acc-electronic" class="accordion-content px-6 bg-tech-panel text-gray-300">
+                        <div class="flex flex-col md:flex-row-reverse gap-6">
+                            <div class="flex-grow">
+                                <p class="mb-4">These tools are specifically designed to handle delicate electronic tasks safely without damaging micro-components.</p>
+                                <ul class="list-disc pl-6 space-y-3">
+                                    <li><strong class="text-tech-accent">Tweezers:</strong> Precision, anti-magnetic tweezers are necessary for handling surface-mount technology (SMT) components, placing small screws, and positioning wires.</li>
+                                    <li><strong class="text-tech-accent">Magnifying Lamp:</strong> A lighted magnifying glass, often mounted on an articulated arm, prevents eye strain and allows the technician to inspect tiny solder joints for micro-cracks or bridging.</li>
+                                    <li><strong class="text-tech-accent">Anti-Static Tools:</strong> Brushes designed not to generate a static charge are used to clean dust off PCBs (Printed Circuit Boards).</li>
+                                </ul>
+                            </div>
+                            <!-- Thumbnail Image linking to Lightbox -->
+                            <div class="md:w-1/3 flex-shrink-0 flex flex-col items-center justify-center">
+                                <img src="https://i0.wp.com/www.shop.mobilecellphonerepairing.com/wp-content/uploads/2019/05/ESD-Mat-for-Soldering.jpg?fit=500%2C500&ssl=1" 
+                                     alt="Microchip and fine precision tools" 
+                                     class="w-full rounded-lg thumbnail-img"
+                                     onclick="openLightbox(this.src, this.alt)">
+                                <p class="text-xs text-center text-gray-400 mt-2 italic">Precision electronics work</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Measuring Instruments Accordion -->
+                <div class="border border-gray-700 rounded-lg overflow-hidden bg-tech-panel shadow-md">
+                    <button class="w-full px-6 py-4 flex justify-between items-center bg-gray-800 hover:bg-gray-750 transition-colors group" onclick="toggleAccordion('acc-measuring')">
+                        <span class="font-bold text-lg text-white group-hover:text-tech-accent flex items-center gap-3">
+                            <i class="fa-solid fa-tachometer-alt text-tech-muted group-hover:text-tech-accent transition-colors"></i> Measuring Instruments
+                        </span>
+                        <i class="fa-solid fa-chevron-down text-tech-muted transition-transform duration-300" id="icon-acc-measuring"></i>
+                    </button>
+                    <div id="acc-measuring" class="accordion-content px-6 bg-tech-panel text-gray-300">
+                        <div class="flex flex-col md:flex-row gap-6">
+                            <div class="flex-grow">
+                                <p class="mb-4">Accurate measurement is critical for both assembly and troubleshooting. Without these, fixing electronics is just guessing.</p>
+                                <ul class="list-disc pl-6 space-y-3">
+                                    <li><strong class="text-tech-accent">Multimeter (VOM):</strong> The most indispensable tool in EPAS. It measures Voltage (volts), Current (amps), and Resistance (ohms). Digital multimeters (DMMs) also feature continuity testing.</li>
+                                    <li><strong class="text-tech-accent">Oscilloscope:</strong> While a multimeter measures steady values, an oscilloscope visually graphs electrical signals over time. It is crucial for diagnosing complex issues where the timing or shape of a signal is erratic.</li>
+                                    <li><strong class="text-tech-accent">LCR Meter:</strong> Specifically measures Inductance (L), Capacitance (C), and Resistance (R). It is highly accurate for testing individual passive components.</li>
+                                </ul>
+                            </div>
+                            <!-- Thumbnail Image linking to Lightbox -->
+                            <div class="md:w-1/3 flex-shrink-0 flex flex-col items-center justify-center">
+                                <img src="https://res.cloudinary.com/iwh/image/upload/q_auto,g_center/w_1500,e_trim,c_fill,g_auto/assets/1/26/Hioki_DT4252_Digital_Multimeter.jpg" 
+                                     alt="Digital Multimeter measuring a circuit" 
+                                     class="w-full rounded-lg thumbnail-img"
+                                     onclick="openLightbox(this.src, this.alt)">
+                                <p class="text-xs text-center text-gray-400 mt-2 italic">Standard Digital Multimeter (DMM)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. Tool ID & Maintenance Accordion -->
+                <div class="border border-gray-700 rounded-lg overflow-hidden bg-tech-panel shadow-md">
+                    <button class="w-full px-6 py-4 flex justify-between items-center bg-gray-800 hover:bg-gray-750 transition-colors group" onclick="toggleAccordion('acc-maintenance')">
+                        <span class="font-bold text-lg text-white group-hover:text-tech-accent flex items-center gap-3">
+                            <i class="fa-solid fa-clipboard-check text-tech-muted group-hover:text-tech-accent transition-colors"></i> Tool Identification, Use & Maintenance
+                        </span>
+                        <i class="fa-solid fa-chevron-down text-tech-muted transition-transform duration-300" id="icon-acc-maintenance"></i>
+                    </button>
+                    <div id="acc-maintenance" class="accordion-content px-6 bg-tech-panel text-gray-300">
+                        <p class="mb-4">Knowing what a tool is called is only the first step; knowing how to use and maintain it prevents costly mistakes.</p>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                                <h4 class="font-bold text-white mb-2"><i class="fa-solid fa-tags text-tech-accent mr-2"></i>Identification</h4>
+                                <p class="text-sm">Technicians must be able to visually distinguish tools. Using the wrong tool (e.g., wire cutter vs bolt cutter) ruins both the tool and the workpiece.</p>
+                            </div>
+                            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                                <h4 class="font-bold text-white mb-2"><i class="fa-solid fa-hand-holding-hand text-tech-accent mr-2"></i>Proper Use</h4>
+                                <p class="text-sm">A screwdriver is not a pry bar or a chisel. Pliers should not be used to tighten nuts, as they will strip the metal; a wrench or nut driver should be used instead.</p>
+                            </div>
+                            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                                <h4 class="font-bold text-white mb-2"><i class="fa-solid fa-spray-can text-tech-accent mr-2"></i>Maintenance</h4>
+                                <p class="text-sm">Hand tools should be kept clean and dry to prevent rust. Moving joints (like those on pliers) require occasional a drop of light machine oil. Test leads on measuring instruments must be regularly checked for frayed insulation, which poses a severe shock hazard.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. Soldering Accordion -->
+                <div class="border border-gray-700 rounded-lg overflow-hidden bg-tech-panel shadow-md">
+                    <button class="w-full px-6 py-4 flex justify-between items-center bg-gray-800 hover:bg-gray-750 transition-colors group" onclick="toggleAccordion('acc-soldering')">
+                        <span class="font-bold text-lg text-white group-hover:text-tech-accent flex items-center gap-3">
+                            <i class="fa-solid fa-fire-burner text-orange-400 group-hover:text-tech-accent transition-colors"></i> Soldering Tools & Safety
+                        </span>
+                        <i class="fa-solid fa-chevron-down text-tech-muted transition-transform duration-300" id="icon-acc-soldering"></i>
+                    </button>
+                    <div id="acc-soldering" class="accordion-content px-6 bg-tech-panel text-gray-300">
+                        <div class="flex flex-col md:flex-row gap-6">
+                            <div class="flex-grow">
+                                <p class="mb-4">Soldering is the process of joining two metals together using a filler metal (solder) with a lower melting point.</p>
+                                <ul class="list-disc pl-6 space-y-3 mb-4">
+                                    <li><strong class="text-tech-accent">Soldering Iron/Station:</strong> A soldering iron applies heat to the joint. A soldering station provides adjustable temperature control, crucial for modern, heat-sensitive components.</li>
+                                    <li><strong class="text-tech-accent">Solder and Flux:</strong> Solder is the alloy that forms the electrical and mechanical bond. Flux cleans the metal surfaces of oxidation during heating, allowing the solder to flow smoothly.</li>
+                                    <li><strong class="text-tech-accent">Desoldering Tools:</strong> When components must be removed, a desoldering pump (solder sucker) uses a vacuum to pull up molten solder, or copper desoldering wick uses capillary action to absorb it.</li>
+                                </ul>
+                                <!-- Safety Warning Box -->
+                                <div class="bg-gray-900 p-4 rounded-lg border-l-4 border-red-500 mt-4 shadow-inner">
+                                    <h4 class="font-bold text-red-400 mb-2 uppercase tracking-wide"><i class="fa-solid fa-triangle-exclamation mr-2"></i>Soldering Safety:</h4>
+                                    <ol class="list-decimal pl-6 space-y-2 text-sm">
+                                        <li><strong>Ventilation:</strong> Solder flux creates fumes that can cause respiratory issues. Always solder in a well-ventilated area or use a fume extractor fan.</li>
+                                        <li><strong>Heat Management:</strong> A soldering iron tip operates between 300°C and 400°C. Never leave it unattended, always return it to its stand.</li>
+                                        <li><strong>Eye Protection:</strong> Wear safety glasses. Molten solder and hot flux can occasionally spit or splatter.</li>
+                                    </ol>
+                                </div>
+                            </div>
+                            <!-- Thumbnail Image linking to Lightbox -->
+                            <div class="md:w-1/3 flex-shrink-0 flex flex-col items-center justify-center">
+                                <img src="https://i0.wp.com/www.electronicsandyou.com/blog/wp-content/uploads/2017/06/Thru-Hole-Soldering-in-Electronics.jpg" 
+                                     alt="Soldering iron being applied to a circuit board" 
+                                     class="w-full rounded-lg thumbnail-img"
+                                     onclick="openLightbox(this.src, this.alt)">
+                                <p class="text-xs text-center text-gray-400 mt-2 italic">Applying solder to PCB joints</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 6. Workstation Accordion -->
+                <div class="border border-gray-700 rounded-lg overflow-hidden bg-tech-panel shadow-md">
+                    <button class="w-full px-6 py-4 flex justify-between items-center bg-gray-800 hover:bg-gray-750 transition-colors group" onclick="toggleAccordion('acc-workstation')">
+                        <span class="font-bold text-lg text-white group-hover:text-tech-accent flex items-center gap-3">
+                            <i class="fa-solid fa-desktop text-tech-muted group-hover:text-tech-accent transition-colors"></i> Workstation Organization
+                        </span>
+                        <i class="fa-solid fa-chevron-down text-tech-muted transition-transform duration-300" id="icon-acc-workstation"></i>
+                    </button>
+                    <div id="acc-workstation" class="accordion-content px-6 bg-tech-panel text-gray-300">
+                        <div class="flex flex-col md:flex-row-reverse gap-6">
+                            <div class="flex-grow">
+                                <p class="mb-4">A disorganized workstation is a hazard to both the technician and the electronics. An effective EPAS workstation often relies on the <strong>5S Methodology</strong>: Sort, Set in order, Shine, Standardize, and Sustain.</p>
+                                <ul class="list-disc pl-6 space-y-3">
+                                    <li><strong class="text-tech-accent">ESD Safety:</strong> Electrostatic Discharge (ESD) is the hidden killer of electronics. Walking across a carpet can generate thousands of volts of static electricity—harmless to humans, but instantly destructive to a microchip. A proper workstation requires an anti-static mat on the desk and an anti-static wrist strap worn by the technician, both properly grounded.</li>
+                                    <li><strong class="text-tech-accent">Ergonomics and Lighting:</strong> The workstation should be at a comfortable height to prevent back strain during long repair sessions. Shadow-free, bright lighting is mandatory for intricate detail work.</li>
+                                    <li><strong class="text-tech-accent">Tool Shadowing:</strong> Tools should be returned to designated spots, often outlined on a pegboard or in foam drawer inserts, so a missing tool is immediately obvious.</li>
+                                </ul>
+                            </div>
+                            <!-- Thumbnail Image linking to Lightbox -->
+                            <div class="md:w-1/3 flex-shrink-0 flex flex-col items-center justify-center">
+                                <img src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=1000&auto=format&fit=crop" 
+                                     alt="An organized electronics laboratory workstation" 
+                                     class="w-full rounded-lg thumbnail-img"
+                                     onclick="openLightbox(this.src, this.alt)">
+                                <p class="text-xs text-center text-gray-400 mt-2 italic">An organized lab environment</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- INTERACTIVE ASSESSMENT: LESSON 1 -->
+            <div class="bg-tech-panel p-6 rounded-xl border border-tech-accent shadow-2xl mt-8">
+                <h3 class="text-2xl font-bold text-white mb-2 flex items-center gap-2 border-b border-gray-700 pb-3">
+                    <i class="fa-solid fa-list-check text-tech-accent"></i> Lesson 1 Interactive Assessment (15 Items)
+                </h3>
+                <p class="text-sm text-gray-300 mb-6">Complete the questions below. Once submitted, your name, grade, section, and score will be logged automatically into the Google Sheet database.</p>
+
+                <form id="quiz-l1" onsubmit="submitQuiz(event, 'Lesson 1', 15)">
+                    <div id="quiz-l1-container" class="space-y-6">
+                        <!-- Q1 -->
+                        <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                            <p class="font-semibold text-white mb-3"><span class="q-num">1</span>. Which hand tool is specifically designed to cut wires and component leads flush against a PCB?</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q1" value="A"> Long-nose pliers</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q1" value="B"> Side cutters / Diagonal clippers</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q1" value="C"> Wire strippers</label>
+                            </div>
+                        </div>
+
+                        <!-- Q2 -->
+                        <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                            <p class="font-semibold text-white mb-3"><span class="q-num">2</span>. What safety hazard does flux fume pose during soldering operations?</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q2" value="A"> Electrical shock</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q2" value="B"> Respiratory health issues</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q2" value="C"> Electrostatic damage</label>
+                            </div>
+                        </div>
+
+                        <!-- Q3 -->
+                        <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                            <p class="font-semibold text-white mb-3"><span class="q-num">3</span>. What equipment prevents Electrostatic Discharge (ESD) damage to sensitive electronic components?</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q3" value="A"> Anti-static mat & wrist strap</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q3" value="B"> Precision screwdrivers</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q3" value="C"> Magnifying lamp</label>
+                            </div>
+                        </div>
+
+                        <!-- Q4 -->
+                        <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                            <p class="font-semibold text-white mb-3"><span class="q-num">4</span>. What is the primary function of wire strippers in electronic assembly?</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q4" value="A"> To crimp terminal connectors</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q4" value="B"> To remove insulation without nicking conductor copper</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q4" value="C"> To bend leads into right angles</label>
+                            </div>
+                        </div>
+
+                        <!-- Q5 -->
+                        <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                            <p class="font-semibold text-white mb-3"><span class="q-num">5</span>. Which tool is best suited for handling tiny surface-mount technology (SMT) components?</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q5" value="A"> Anti-magnetic precision tweezers</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q5" value="B"> Slip-joint pliers</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q5" value="C"> Desoldering pump</label>
+                            </div>
+                        </div>
+
+                        <!-- Q6 -->
+                        <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                            <p class="font-semibold text-white mb-3"><span class="q-num">6</span>. What instrument graphs electrical signal waveforms over time rather than showing a single value?</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q6" value="A"> Digital Multimeter</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q6" value="B"> Oscilloscope</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q6" value="C"> LCR Meter</label>
+                            </div>
+                        </div>
+
+                        <!-- Q7 -->
+                        <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                            <p class="font-semibold text-white mb-3"><span class="q-num">7</span>. What parameters are measured by an LCR meter?</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q7" value="A"> Light, Current, Resistance</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q7" value="B"> Inductance, Capacitance, Resistance</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q7" value="C"> Line, Conductance, Resonance</label>
+                            </div>
+                        </div>
+
+                        <!-- Q8 -->
+                        <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                            <p class="font-semibold text-white mb-3"><span class="q-num">8</span>. What is the role of flux during the soldering process?</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q8" value="A"> To cool down the soldering tip rapidly</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q8" value="B"> To clean metal surfaces of oxidation and aid solder flow</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q8" value="C"> To permanently insulate solder connections</label>
+                            </div>
+                        </div>
+
+                        <!-- Q9 -->
+                        <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                            <p class="font-semibold text-white mb-3"><span class="q-num">9</span>. How does desoldering braid (wick) remove molten solder from a joint?</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q9" value="A"> Through mechanical vacuum pressure</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q9" value="B"> Through capillary action of woven copper</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q9" value="C"> By magnetic attraction</label>
+                            </div>
+                        </div>
+
+                        <!-- Q10 -->
+                        <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                            <p class="font-semibold text-white mb-3"><span class="q-num">10</span>. What typical temperature range does a modern soldering iron tip operate at?</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q10" value="A"> 100°C to 150°C</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q10" value="B"> 300°C to 400°C</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q10" value="C"> 600°C to 800°C</label>
+                            </div>
+                        </div>
+
+                        <!-- Q11 -->
+                        <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                            <p class="font-semibold text-white mb-3"><span class="q-num">11</span>. Which organizational framework is widely adopted for maintaining an effective EPAS workstation?</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q11" value="A"> 5S Methodology</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q11" value="B"> ISO 9001 Standard</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q11" value="C"> Six Sigma Black Belt System</label>
+                            </div>
+                        </div>
+
+                        <!-- Q12 -->
+                        <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                            <p class="font-semibold text-white mb-3"><span class="q-num">12</span>. What practice helps technicians quickly identify a missing tool on a pegboard or drawer?</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q12" value="A"> Tool shadowing / Outlining</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q12" value="B"> Color coding leads</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q12" value="C"> Heat shrinking handles</label>
+                            </div>
+                        </div>
+
+                        <!-- Q13 -->
+                        <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                            <p class="font-semibold text-white mb-3"><span class="q-num">13</span>. Why should pliers NOT be used to tighten nuts on electronic chassis assembly?</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q13" value="A"> They generate static charge</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q13" value="B"> They strip the metal edges of nuts</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q13" value="C"> They overheat components</label>
+                            </div>
+                        </div>
+
+                        <!-- Q14 -->
+                        <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                            <p class="font-semibold text-white mb-3"><span class="q-num">14</span>. What maintenance routine preserves moving joints of hand pliers?</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q14" value="A"> Washing with water daily</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q14" value="B"> Applying a drop of light machine oil</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q14" value="C"> Sanding the joint pin</label>
+                            </div>
+                        </div>
+
+                        <!-- Q15 -->
+                        <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                            <p class="font-semibold text-white mb-3"><span class="q-num">15</span>. What basic personal protective equipment (PPE) guards against molten flux splatters during soldering?</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q15" value="A"> Safety glasses / goggles</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q15" value="B"> Leather welding apron</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l1q15" value="C"> Rubber boots</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
+                        <button type="submit" class="bg-tech-accent hover:bg-tech-accentHover text-tech-dark font-bold px-6 py-3 rounded shadow-lg transition-all flex items-center gap-2">
+                            <i class="fa-solid fa-paper-plane"></i> Submit Lesson 1 Quiz
+                        </button>
+                        <div id="score-l1" class="text-lg font-bold text-tech-accent"></div>
+                    </div>
+                </form>
+
+                <!-- Passcode Protected Answer Key for Lesson 1 -->
+                <div class="mt-8 pt-6 border-t border-gray-700">
+                    <button onclick="toggleAnswerKey('key-l1')" class="bg-gray-800 hover:bg-gray-700 text-gray-300 px-4 py-2 rounded text-xs font-semibold flex items-center gap-2 border border-gray-600">
+                        <i class="fa-solid fa-key text-yellow-400"></i> Unlock Answer Key (Teacher Only)
+                    </button>
+
+                    <div id="key-l1" class="hidden mt-4 bg-gray-900 p-4 rounded-lg border border-yellow-500/40 text-sm">
+                        <h4 class="font-bold text-yellow-400 mb-2 flex items-center gap-2"><i class="fa-solid fa-lock-open"></i> Lesson 1 Answer Key & Explanations:</h4>
+                        <ul class="space-y-2 text-gray-300 list-disc pl-5">
+                            <li><strong>Q1: B</strong> — Side cutters (diagonal clippers) cut component leads flush.</li>
+                            <li><strong>Q2: B</strong> — Flux smoke/fumes can cause respiratory issues.</li>
+                            <li><strong>Q3: A</strong> — Grounded mats & wrist straps protect components from ESD.</li>
+                            <li><strong>Q4: B</strong> — Wire strippers clean insulation without damaging conductive wire cores.</li>
+                            <li><strong>Q5: A</strong> — Anti-magnetic tweezers safely hold tiny SMT components.</li>
+                            <li><strong>Q6: B</strong> — Oscilloscopes display signal voltage against time visually.</li>
+                            <li><strong>Q7: B</strong> — LCR meters measure Inductance, Capacitance, and Resistance.</li>
+                            <li><strong>Q8: B</strong> — Flux removes metal oxides to allow smooth solder wetting.</li>
+                            <li><strong>Q9: B</strong> — Desoldering braid uses copper capillary action to pull solder.</li>
+                            <li><strong>Q10: B</strong> — Standard soldering iron tips operate between 300°C and 400°C.</li>
+                            <li><strong>Q11: A</strong> — 5S (Sort, Set, Shine, Standardize, Sustain) organizes technical benches.</li>
+                            <li><strong>Q12: A</strong> — Tool shadowing outlines tools to identify missing items instantly.</li>
+                            <li><strong>Q13: B</strong> — Pliers strip nut corners; proper wrenches or nut drivers must be used.</li>
+                            <li><strong>Q14: B</strong> — Light machine oil prevents rust and keeps joints moving smoothly.</li>
+                            <li><strong>Q15: A</strong> — Safety glasses protect eyes from hot spitting flux and molten solder.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- SECTION: LESSON 2 - MULTIMETER MASTERCLASS -->
+        <!-- ========================================== -->
+        <section id="lesson2" class="tab-content">
+            <div class="bg-tech-panel p-6 rounded-xl border border-gray-700 shadow-xl mb-8 relative overflow-hidden">
+                 <div class="absolute top-0 right-0 opacity-5 text-9xl transform translate-x-4 -translate-y-4">
+                    <i class="fa-solid fa-bolt"></i>
+                </div>
+                <h2 class="text-2xl font-bold mb-4 text-tech-accent border-b border-gray-700 pb-2 flex items-center gap-2 relative z-10">
+                    <i class="fa-solid fa-bolt text-xl"></i> How to Use a Digital Multimeter
+                </h2>
+                <div class="flex flex-col md:flex-row gap-6 relative z-10">
+                    <div class="flex-grow">
+                        <p class="text-lg leading-relaxed text-gray-300">
+                            Testing components with a digital multimeter (DMM) requires understanding three core measurements: voltage, resistance, and continuity. Doing this correctly prevents damage to the meter and the circuit you are working on.
+                        </p>
+                        <div class="mt-4 p-4 bg-gray-800 rounded border border-gray-600 inline-block shadow-inner">
+                            <p class="text-sm text-tech-accent font-semibold"><i class="fa-solid fa-play mr-2"></i>Click 'Start Procedure' below to begin the step-by-step interactive guides.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grid container for the 3 measurement types (Steppers) -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
+                
+                <!-- 1. Voltage Stepper -->
+                <div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden flex flex-col h-full shadow-lg">
+                    <div class="p-4 bg-gray-900 border-b border-gray-700 shadow-md z-10">
+                        <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-car-battery text-green-400"></i> Voltage (DC/AC)
+                        </h3>
+                    </div>
+                    <!-- Relative container to hold the step cards -->
+                    <div class="p-6 flex-grow relative min-h-[320px]">
+                        
+                        <!-- Introduction for Voltage -->
+                        <div id="volt-intro" class="step-card active">
+                            <p class="text-gray-300 mb-4 text-sm leading-relaxed">Voltage testing checks how much electrical pressure is present. For electronics (like a battery or circuit board), use <strong>DC Voltage</strong> (V with a solid/dashed line). For wall outlets, use <strong>AC Voltage</strong> (V with a wavy line).</p>
+                            <!-- Starts the specific stepper -->
+                            <button onclick="startStepper('volt', 4)" class="w-full bg-tech-accent hover:bg-tech-accentHover text-tech-dark font-bold py-3 px-4 rounded shadow-lg transition-colors mt-4 flex justify-center items-center gap-2">
+                                <i class="fa-solid fa-play"></i> Start Procedure
+                            </button>
+                        </div>
+
+                        <!-- Steps for Voltage -->
+                        <div id="volt-step-1" class="step-card">
+                            <div class="text-tech-accent text-xs font-bold mb-2 tracking-widest uppercase">Step 1 of 4</div>
+                            <h4 class="text-lg font-bold text-white mb-2">Plug in the probes</h4>
+                            <p class="text-gray-300 text-sm">Insert the black probe into the common (<strong>COM</strong>) port. Insert the red probe into the port marked with a <strong>V</strong>.</p>
+                        </div>
+                        <div id="volt-step-2" class="step-card">
+                            <div class="text-tech-accent text-xs font-bold mb-2 tracking-widest uppercase">Step 2 of 4</div>
+                            <h4 class="text-lg font-bold text-white mb-2">Set the dial to Voltage</h4>
+                            <p class="text-gray-300 text-sm">Turn the dial to the correct voltage setting (AC or DC). If your meter is manual-ranging, set it to the number just higher than the voltage you expect to measure (e.g., set to 20V for a 9V battery).</p>
+                        </div>
+                        <div id="volt-step-3" class="step-card">
+                            <div class="text-tech-accent text-xs font-bold mb-2 tracking-widest uppercase">Step 3 of 4</div>
+                            <h4 class="text-lg font-bold text-white mb-2">Ensure power is ON</h4>
+                            <p class="text-gray-300 text-sm">You can only measure voltage while electricity is actively flowing or available at the source.</p>
+                        </div>
+                        <div id="volt-step-4" class="step-card">
+                            <div class="text-tech-accent text-xs font-bold mb-2 tracking-widest uppercase">Step 4 of 4</div>
+                            <h4 class="text-lg font-bold text-white mb-2">Place the probes</h4>
+                            <p class="text-gray-300 text-sm">Place the red probe on the positive side of the component/source and the black probe on the negative side. If you get a negative reading (e.g., -9.00), your probes are simply reversed; it won't harm the meter.</p>
+                        </div>
+                    </div>
+                    <!-- Controls for Voltage Stepper (Hidden on intro) -->
+                    <div id="volt-controls" class="p-4 bg-gray-900 border-t border-gray-700 flex justify-between hidden">
+                        <button onclick="prevStep('volt')" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded text-white text-sm font-medium transition-colors disabled:opacity-50" id="volt-btn-prev">Previous</button>
+                        <button onclick="nextStep('volt', 4)" class="px-4 py-2 bg-tech-accent hover:bg-tech-accentHover text-tech-dark rounded text-sm font-bold transition-colors shadow-lg" id="volt-btn-next">Next <i class="fa-solid fa-arrow-right ml-1"></i></button>
+                    </div>
+                </div>
+
+                <!-- 2. Resistance Stepper -->
+                <div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden flex flex-col h-full shadow-lg">
+                    <div class="p-4 bg-gray-900 border-b border-gray-700 shadow-md z-10">
+                        <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-omega text-yellow-400"></i> Resistance (Ohms)
+                        </h3>
+                    </div>
+                    <div class="p-6 flex-grow relative min-h-[320px]">
+                        
+                        <!-- Introduction for Resistance -->
+                        <div id="res-intro" class="step-card active">
+                            <p class="text-gray-300 mb-4 text-sm leading-relaxed">Resistance testing checks how much a component opposes the flow of electricity. It is crucial for testing resistors, potentiometers, and sensors.</p>
+                            <button onclick="startStepper('res', 6)" class="w-full bg-tech-accent hover:bg-tech-accentHover text-tech-dark font-bold py-3 px-4 rounded shadow-lg transition-colors mt-4 flex justify-center items-center gap-2">
+                                <i class="fa-solid fa-play"></i> Start Procedure
+                            </button>
+                        </div>
+
+                        <!-- Steps for Resistance -->
+                        <div id="res-step-1" class="step-card">
+                            <div class="text-tech-accent text-xs font-bold mb-2 tracking-widest uppercase">Step 1 of 6</div>
+                            <h4 class="text-lg font-bold text-red-400 mb-2"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Power OFF circuit</h4>
+                            <p class="text-gray-300 text-sm">Unplug the device or remove the battery. <strong>Never test resistance on a live circuit.</strong> External power will scramble the reading or blow the meter's internal fuse.</p>
+                        </div>
+                        <div id="res-step-2" class="step-card">
+                            <div class="text-tech-accent text-xs font-bold mb-2 tracking-widest uppercase">Step 2 of 6</div>
+                            <h4 class="text-lg font-bold text-white mb-2">Plug in the probes</h4>
+                            <p class="text-gray-300 text-sm">Ensure probes are in the same ports used for voltage testing (Black to COM, Red to V/Ω/mA).</p>
+                        </div>
+                        <div id="res-step-3" class="step-card">
+                            <div class="text-tech-accent text-xs font-bold mb-2 tracking-widest uppercase">Step 3 of 6</div>
+                            <h4 class="text-lg font-bold text-white mb-2">Set the dial to Ohms (Ω)</h4>
+                            <p class="text-gray-300 text-sm">Turn the dial to the Omega symbol (Ω). If it's manual-ranging, start at the lowest setting (like 200) and turn it up until you get a reading.</p>
+                        </div>
+                        <div id="res-step-4" class="step-card">
+                            <div class="text-tech-accent text-xs font-bold mb-2 tracking-widest uppercase">Step 4 of 6</div>
+                            <h4 class="text-lg font-bold text-white mb-2">Isolate the component</h4>
+                            <p class="text-gray-300 text-sm">If the resistor is soldered into a complex board, measuring it in place might give a false reading. Desolder one leg if you need absolute accuracy.</p>
+                        </div>
+                        <div id="res-step-5" class="step-card">
+                            <div class="text-tech-accent text-xs font-bold mb-2 tracking-widest uppercase">Step 5 of 6</div>
+                            <h4 class="text-lg font-bold text-white mb-2">Place probes</h4>
+                            <p class="text-gray-300 text-sm">Touch one probe to each end of the component. Resistors don't have polarity, so it doesn't matter which color goes where.</p>
+                        </div>
+                        <div id="res-step-6" class="step-card">
+                            <div class="text-tech-accent text-xs font-bold mb-2 tracking-widest uppercase">Step 6 of 6</div>
+                            <h4 class="text-lg font-bold text-tech-accent mb-2">Read the Display</h4>
+                            <p class="text-gray-300 text-sm">If it reads <strong>1</strong> or <strong>OL</strong> (Open Loop), resistance is higher than your dial setting. Turn dial up. If it reads <strong>0.00</strong>, there is zero resistance (short circuit).</p>
+                        </div>
+                    </div>
+                    <!-- Controls for Resistance Stepper -->
+                    <div id="res-controls" class="p-4 bg-gray-900 border-t border-gray-700 flex justify-between hidden">
+                        <button onclick="prevStep('res')" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded text-white text-sm font-medium transition-colors disabled:opacity-50" id="res-btn-prev">Previous</button>
+                        <button onclick="nextStep('res', 6)" class="px-4 py-2 bg-tech-accent hover:bg-tech-accentHover text-tech-dark rounded text-sm font-bold transition-colors shadow-lg" id="res-btn-next">Next <i class="fa-solid fa-arrow-right ml-1"></i></button>
+                    </div>
+                </div>
+
+                <!-- 3. Continuity Stepper -->
+                <div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden flex flex-col h-full shadow-lg">
+                    <div class="p-4 bg-gray-900 border-b border-gray-700 shadow-md z-10">
+                        <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-wave-square text-purple-400"></i> Continuity
+                        </h3>
+                    </div>
+                    <div class="p-6 flex-grow relative min-h-[320px]">
+                        
+                        <!-- Introduction for Continuity -->
+                        <div id="cont-intro" class="step-card active">
+                            <p class="text-gray-300 mb-4 text-sm leading-relaxed">Continuity testing is a fast way to check if an electrical path is complete. It's essentially a very low resistance test that triggers a beeper. Perfect for finding broken wires or blown fuses.</p>
+                            <button onclick="startStepper('cont', 4)" class="w-full bg-tech-accent hover:bg-tech-accentHover text-tech-dark font-bold py-3 px-4 rounded shadow-lg transition-colors mt-4 flex justify-center items-center gap-2">
+                                <i class="fa-solid fa-play"></i> Start Procedure
+                            </button>
+                        </div>
+
+                        <!-- Steps for Continuity -->
+                        <div id="cont-step-1" class="step-card">
+                            <div class="text-tech-accent text-xs font-bold mb-2 tracking-widest uppercase">Step 1 of 4</div>
+                            <h4 class="text-lg font-bold text-red-400 mb-2"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Power OFF circuit</h4>
+                            <p class="text-gray-300 text-sm">Just like resistance testing, the circuit must be completely unpowered to prevent damage to the meter.</p>
+                        </div>
+                        <div id="cont-step-2" class="step-card">
+                            <div class="text-tech-accent text-xs font-bold mb-2 tracking-widest uppercase">Step 2 of 4</div>
+                            <h4 class="text-lg font-bold text-white mb-2">Set dial to Continuity</h4>
+                            <p class="text-gray-300 text-sm">Turn the dial to the icon that looks like a series of curved lines (sound wave/Wi-Fi symbol sideways) or a diode symbol.</p>
+                        </div>
+                        <div id="cont-step-3" class="step-card">
+                            <div class="text-tech-accent text-xs font-bold mb-2 tracking-widest uppercase">Step 3 of 4</div>
+                            <h4 class="text-lg font-bold text-white mb-2">Test the meter first</h4>
+                            <p class="text-gray-300 text-sm">Touch the metal tips of the red and black probes together. The meter should emit a continuous beep, and the screen should drop to near zero. This confirms it's working.</p>
+                        </div>
+                        <div id="cont-step-4" class="step-card">
+                            <div class="text-tech-accent text-xs font-bold mb-2 tracking-widest uppercase">Step 4 of 4</div>
+                            <h4 class="text-lg font-bold text-white mb-2">Place probes on path</h4>
+                            <p class="text-gray-300 text-sm">Touch one probe to one end of a wire or trace, and the other probe to the opposite end.<br><br>
+                            <span class="text-green-400 font-bold"><i class="fa-solid fa-volume-high mr-1"></i> Beep:</span> Path is continuous (good wire/fuse).<br>
+                            <span class="text-red-400 font-bold"><i class="fa-solid fa-volume-xmark mr-1"></i> Silence / "OL":</span> Path is broken.</p>
+                        </div>
+                    </div>
+                    <!-- Controls for Continuity Stepper -->
+                    <div id="cont-controls" class="p-4 bg-gray-900 border-t border-gray-700 flex justify-between hidden">
+                        <button onclick="prevStep('cont')" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded text-white text-sm font-medium transition-colors disabled:opacity-50" id="cont-btn-prev">Previous</button>
+                        <button onclick="nextStep('cont', 4)" class="px-4 py-2 bg-tech-accent hover:bg-tech-accentHover text-tech-dark rounded text-sm font-bold transition-colors shadow-lg" id="cont-btn-next">Next <i class="fa-solid fa-arrow-right ml-1"></i></button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- INTERACTIVE ASSESSMENT: LESSON 2 -->
+            <div class="bg-tech-panel p-6 rounded-xl border border-tech-accent shadow-2xl mt-8">
+                <h3 class="text-2xl font-bold text-white mb-2 flex items-center gap-2 border-b border-gray-700 pb-3">
+                    <i class="fa-solid fa-list-check text-tech-accent"></i> Lesson 2 Interactive Assessment (15 Items)
+                </h3>
+                <p class="text-sm text-gray-300 mb-6">Complete the questions below. Once submitted, your name, grade, section, and score will be logged automatically into the Google Sheet database.</p>
+
+                <form id="quiz-l2" onsubmit="submitQuiz(event, 'Lesson 2', 15)">
+                    <div id="quiz-l2-container" class="space-y-6">
+                        <!-- Q1 -->
+                        <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                            <p class="font-semibold text-white mb-3"><span class="q-num">1</span>. What MUST be done before measuring resistance ($\Omega$) in a circuit?</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q1" value="A"> Turn on the power supply</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q1" value="B"> Completely power OFF the circuit</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q1" value="C"> Set meter to AC Voltage</label>
+                            </div>
+                        </div>
+
+                        <!-- Q2 -->
+                        <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                            <p class="font-semibold text-white mb-3"><span class="q-num">2</span>. What does an 'OL' (Open Loop) reading indicate on a multimeter display?</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q2" value="A"> Zero resistance (Short circuit)</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q2" value="B"> Resistance exceeds dial setting or path is broken</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q2" value="C"> Probes are reversed</label>
+                            </div>
+                        </div>
+
+                        <!-- Q3 -->
+                        <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                            <p class="font-semibold text-white mb-3"><span class="q-num">3</span>. Into which port should the black probe ALWAYS be connected?</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q3" value="A"> COM (Common)</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q3" value="B"> V/Ω port</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q3" value="C"> 10A port</label>
+                            </div>
+                        </div>
+
+                        <!-- Q4 -->
+                        <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                            <p class="font-semibold text-white mb-3"><span class="q-num">4</span>. Which dial symbol indicates DC Voltage measurement on a digital multimeter?</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q4" value="A"> V with a wavy line (~)</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q4" value="B"> V with a solid line and dashed line beneath</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q4" value="C"> Capital Omega ($\Omega$)</label>
+                            </div>
+                        </div>
+
+                        <!-- Q5 -->
+                        <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                            <p class="font-semibold text-white mb-3"><span class="q-num">5</span>. What voltage setting should be chosen when measuring household wall outlet power?</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q5" value="A"> DC Voltage</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q5" value="B"> AC Voltage</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q5" value="C"> Continuity mode</label>
+                            </div>
+                        </div>
+
+                        <!-- Q6 -->
+                        <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                            <p class="font-semibold text-white mb-3"><span class="q-num">6</span>. What happens if red and black probes are connected in reverse when measuring DC voltage?</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q6" value="A"> The meter fuse blows instantly</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q6" value="B"> The display shows a negative voltage value without damaging meter</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q6" value="C"> The screen displays OL error</label>
+                            </div>
+                        </div>
+
+                        <!-- Q7 -->
+                        <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                            <p class="font-semibold text-white mb-3"><span class="q-num">7</span>. When selecting manual range for an unknown voltage, what range should be selected first?</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q7" value="A"> The lowest range setting</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q7" value="B"> The highest available range setting</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q7" value="C"> Any middle range setting</label>
+                            </div>
+                        </div>
+
+                        <!-- Q8 -->
+                        <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                            <p class="font-semibold text-white mb-3"><span class="q-num">8</span>. What visual or audio feedback indicates a good continuous connection during continuity testing?</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q8" value="A"> Continuous audible beep and near 0 resistance reading</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q8" value="B"> Complete silence and OL reading</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q8" value="C"> Flashing red screen backlight</label>
+                            </div>
+                        </div>
+
+                        <!-- Q9 -->
+                        <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                            <p class="font-semibold text-white mb-3"><span class="q-num">9</span>. Why should one leg of a resistor be desoldered before testing its resistance on a PCB?</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q9" value="A"> To avoid electric shock hazard</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q9" value="B"> To prevent parallel circuit paths from skewing reading accuracy</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q9" value="C"> To protect probe tips from solder coating</label>
+                            </div>
+                        </div>
+
+                        <!-- Q10 -->
+                        <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                            <p class="font-semibold text-white mb-3"><span class="q-num">10</span>. What step should ALWAYS be performed prior to probing a circuit for continuity?</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q10" value="A"> Touch metal probe tips together to verify beeper works</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q10" value="B"> Discharge high voltage capacitors and turn off power</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q10" value="C"> Both A and B are necessary</label>
+                            </div>
+                        </div>
+
+                        <!-- Q11 -->
+                        <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                            <p class="font-semibold text-white mb-3"><span class="q-num">11</span>. What display reading indicates zero resistance (direct short circuit)?</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q11" value="A"> 0.00 $\Omega$</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q11" value="B"> OL $\Omega$</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q11" value="C"> 1.00 M$\Omega$</label>
+                            </div>
+                        </div>
+
+                        <!-- Q12 -->
+                        <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                            <p class="font-semibold text-white mb-3"><span class="q-num">12</span>. Does resistor orientation (polarity) matter when touching probes to its two ends?</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q12" value="A"> Yes, red probe must connect to positive terminal</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q12" value="B"> No, resistors are non-polarized components</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q12" value="C"> Yes, black probe must connect to ground stripe</label>
+                            </div>
+                        </div>
+
+                        <!-- Q13 -->
+                        <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                            <p class="font-semibold text-white mb-3"><span class="q-num">13</span>. Which DMM port is used alongside COM for standard voltage, resistance, and continuity checks?</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q13" value="A"> 10A High Current Jack</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q13" value="B"> V/$\Omega$/mA Jack</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q13" value="C"> Transistor hFE Socket</label>
+                            </div>
+                        </div>
+
+                        <!-- Q14 -->
+                        <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                            <p class="font-semibold text-white mb-3"><span class="q-num">14</span>. What result should be expected when probing a good, unbroken fuse in continuity mode?</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q14" value="A"> Audible beep sound with near zero reading</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q14" value="B"> Silent reading with "OL" display</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q14" value="C"> High voltage warning glow</label>
+                            </div>
+                        </div>
+
+                        <!-- Q15 -->
+                        <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                            <p class="font-semibold text-white mb-3"><span class="q-num">15</span>. What will occur if resistance mode ($\Omega$) is engaged while circuit power remains ON?</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q15" value="A"> Accurate voltage level readings will display</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q15" value="B"> False values display or meter internal fuse blows</label>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer"><input type="radio" name="l2q15" value="C"> Circuit voltage automatically regulates</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
+                        <button type="submit" class="bg-tech-accent hover:bg-tech-accentHover text-tech-dark font-bold px-6 py-3 rounded shadow-lg transition-all flex items-center gap-2">
+                            <i class="fa-solid fa-paper-plane"></i> Submit Lesson 2 Quiz
+                        </button>
+                        <div id="score-l2" class="text-lg font-bold text-tech-accent"></div>
+                    </div>
+                </form>
+
+                <!-- Passcode Protected Answer Key for Lesson 2 -->
+                <div class="mt-8 pt-6 border-t border-gray-700">
+                    <button onclick="toggleAnswerKey('key-l2')" class="bg-gray-800 hover:bg-gray-700 text-gray-300 px-4 py-2 rounded text-xs font-semibold flex items-center gap-2 border border-gray-600">
+                        <i class="fa-solid fa-key text-yellow-400"></i> Unlock Answer Key (Teacher Only)
+                    </button>
+
+                    <div id="key-l2" class="hidden mt-4 bg-gray-900 p-4 rounded-lg border border-yellow-500/40 text-sm">
+                        <h4 class="font-bold text-yellow-400 mb-2 flex items-center gap-2"><i class="fa-solid fa-lock-open"></i> Lesson 2 Answer Key & Explanations:</h4>
+                        <ul class="space-y-2 text-gray-300 list-disc pl-5">
+                            <li><strong>Q1: B</strong> — Resistance testing requires zero external power.</li>
+                            <li><strong>Q2: B</strong> — OL means Open Loop (infinite resistance/broken path).</li>
+                            <li><strong>Q3: A</strong> — Black probe connects to COM (Common ground).</li>
+                            <li><strong>Q4: B</strong> — DC Voltage is designated by V with solid and dashed lines.</li>
+                            <li><strong>Q5: B</strong> — Mains outlets supply Alternating Current (AC Voltage).</li>
+                            <li><strong>Q6: B</strong> — Reversing DC probes shows negative value without harm.</li>
+                            <li><strong>Q7: B</strong> — Always select highest range first to protect manual meters.</li>
+                            <li><strong>Q8: A</strong> — Continuous beep confirms complete electrical connection.</li>
+                            <li><strong>Q9: B</strong> — Isolating one leg eliminates parallel component interference.</li>
+                            <li><strong>Q10: C</strong> — Always verify test leads and ensure zero voltage in circuit.</li>
+                            <li><strong>Q11: A</strong> — 0.00 $\Omega$ represents perfect electrical continuity (short).</li>
+                            <li><strong>Q12: B</strong> — Resistors are non-polarized passive components.</li>
+                            <li><strong>Q13: B</strong> — Standard measurements use V/$\Omega$/mA positive jack.</li>
+                            <li><strong>Q14: A</strong> — Intact fuses yield continuous beep and near 0 resistance.</li>
+                            <li><strong>Q15: B</strong> — External voltage in resistance mode corrupts data or blows fuses.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- SECTION: LESSON 3 - PLACEHOLDER            -->
+        <!-- ========================================== -->
+        <section id="lesson3" class="tab-content">
+            <div class="flex flex-col items-center justify-center py-20 text-center bg-tech-panel rounded-xl border border-dashed border-gray-600 h-96">
+                <div class="relative">
+                    <i class="fa-solid fa-lock text-6xl text-gray-600 mb-6"></i>
+                    <!-- Animated pulse indicator -->
+                    <i class="fa-solid fa-clock absolute -bottom-2 -right-2 text-2xl text-tech-accent animate-pulse"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-white mb-2 tracking-wide">Lesson 3: Advanced Testing</h2>
+                <p class="text-gray-400 text-lg max-w-md">
+                    This section is currently under development. Prepare to dive deeper into oscilloscope reading, advanced circuit troubleshooting, and more!
+                </p>
+                <div class="mt-8 px-6 py-2 bg-gray-800 rounded-full border border-gray-700 text-tech-accent text-sm font-mono uppercase tracking-widest">
+                    Status: Coming Soon
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- INSTRUCTIONS MODAL: Google Apps Script Setup -->
+    <div id="instructions-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-tech-panel border border-tech-accent rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div class="flex items-center justify-between border-b border-gray-700 pb-3 mb-4">
+                <h3 class="text-xl font-bold text-white flex items-center gap-2"><i class="fa-solid fa-file-code text-tech-accent"></i> How to Link Google Sheet</h3>
+                <button onclick="closeInstructionsModal()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            
+            <ol class="list-decimal pl-5 space-y-3 text-sm text-gray-300">
+                <li>Create a new <strong>Google Sheet</strong> and name it <code>EPAS Student Assessment Data</code>.</li>
+                <li>In Google Sheets, go to <strong>Extensions</strong> &gt; <strong>Apps Script</strong>.</li>
+                <li>Delete existing code and paste the following script:
+                    <pre class="bg-gray-900 text-green-400 p-3 rounded mt-2 text-xs font-mono overflow-x-auto">
+function doPost(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(["Timestamp", "Student Name", "Grade Level", "Section", "Lesson", "Score", "Total Possible"]);
+  }
+  var data = JSON.parse(e.postData.contents);
+  sheet.appendRow([new Date(), data.name, data.grade, data.section, data.lesson, data.score, data.total]);
+  return ContentService.createTextOutput(JSON.stringify({"result": "success"})).setMimeType(ContentService.MimeType.JSON);
+}</pre>
+                </li>
+                <li>Click <strong>Deploy</strong> &gt; <strong>New deployment</strong>.</li>
+                <li>Select <strong>Web app</strong>. Set <i>Who has access</i> to <strong>Anyone</strong>.</li>
+                <li>Click <strong>Deploy</strong> and copy the <strong>Web App URL</strong>.</li>
+                <li>Assign the Google Apps Script Web App URL to the JavaScript submission logic or paste your Google Sheet link directly onto the link button to allow opening the spreadsheet directly!</li>
+            </ol>
+
+            <div class="mt-6 text-right">
+                <button onclick="closeInstructionsModal()" class="bg-tech-accent text-tech-dark font-bold px-5 py-2 rounded text-sm">Got it!</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- SECTION: LIGHTBOX IMAGE VIEWER             -->
+    <!-- ========================================== -->
+    <!-- This overlay covers the entire screen when an image is clicked -->
+    <div id="lightbox">
+        <!-- Close button (top right) -->
+        <button onclick="closeLightbox()" class="absolute top-6 right-6 text-white hover:text-tech-accent text-4xl transition-colors z-50">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+        
+        <!-- The actual high-res image container -->
+        <img id="lightbox-img" src="" alt="Expanded view">
+        
+        <!-- Image caption -->
+        <p id="lightbox-caption" class="text-white mt-4 text-lg font-medium tracking-wide drop-shadow-md"></p>
+        
+        <!-- Explicit Go Back button (centered below) -->
+        <button onclick="closeLightbox()" class="mt-6 px-8 py-3 bg-tech-accent text-tech-dark font-bold rounded-lg hover:bg-tech-accentHover transition-colors shadow-lg flex items-center gap-2">
+            <i class="fa-solid fa-arrow-left"></i> Go Back to Lesson
+        </button>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- SECTION: JAVASCRIPT LOGIC                  -->
+    <!-- ========================================== -->
+    <script>
+        /**
+         * ---------------------------------------------------------
+         * Tab Navigation Logic
+         * ---------------------------------------------------------
+         * Hides all sections and shows the target section.
+         * Updates styling of navigation buttons to reflect active state.
+         */
+        function switchTab(tabId) {
+            // 1. Hide all lesson contents by removing the 'active' class
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // 2. Reset the styling on all tab buttons to default (unselected)
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('bg-tech-accent', 'text-tech-dark', 'glow-accent');
+                btn.classList.add('bg-gray-800', 'text-gray-400');
+            });
+
+            // 3. Show the newly selected lesson content
+            document.getElementById(tabId).classList.add('active');
+
+            // 4. Highlight the newly selected tab button
+            const activeBtn = document.getElementById('btn-' + tabId);
+            activeBtn.classList.remove('bg-gray-800', 'text-gray-400');
+            activeBtn.classList.add('bg-tech-accent', 'text-tech-dark', 'glow-accent');
+            
+            // Scroll to top of page smoothly upon changing tabs
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        /**
+         * ---------------------------------------------------------
+         * Accordion Logic (Lesson 1)
+         * ---------------------------------------------------------
+         * Opens/Closes specific accordion content and rotates the chevron icon.
+         */
+        function toggleAccordion(id) {
+            const content = document.getElementById(id);
+            const icon = document.getElementById('icon-' + id);
+            
+            // Check if this accordion is currently open
+            if (content.classList.contains('open')) {
+                // If open, close it and reset icon
+                content.classList.remove('open');
+                icon.style.transform = 'rotate(0deg)';
+            } else {
+                // If closed, open it and flip icon 180 degrees
+                content.classList.add('open');
+                icon.style.transform = 'rotate(180deg)';
+            }
+        }
+
+        /**
+         * ---------------------------------------------------------
+         * Stepper Logic (Lesson 2)
+         * ---------------------------------------------------------
+         * Manages the state of the step-by-step guides for the multimeter.
+         */
+        
+        // State object keeping track of current step for each measurement type
+        const stepState = {
+            volt: 0,
+            res: 0,
+            cont: 0
+        };
+
+        // Starts the stepper sequence by hiding intro and showing step 1 and controls
+        function startStepper(category, maxSteps) {
+            document.getElementById(category + '-intro').classList.remove('active');
+            document.getElementById(category + '-controls').classList.remove('hidden');
+            stepState[category] = 1;
+            updateStepperUI(category, maxSteps); 
+        }
+
+        // Advances to the next step
+        function nextStep(category, maxSteps) {
+            if (stepState[category] < maxSteps) {
+                stepState[category]++;
+                updateStepperUI(category, maxSteps);
+            } else {
+                // If user clicks "Finish" on the last step, we can reset or provide a message
+                // For this module, we will reset the stepper back to the intro
+                resetStepper(category);
+            }
+        }
+
+        // Goes back to the previous step
+        function prevStep(category) {
+            if (stepState[category] > 1) {
+                stepState[category]--;
+                // Determine max steps dynamically to pass to the UI updater
+                const maxSteps = document.querySelectorAll(`[id^="${category}-step-"]`).length;
+                updateStepperUI(category, maxSteps);
+            }
+        }
+        
+        // Resets the stepper back to the introduction screen
+        function resetStepper(category) {
+            stepState[category] = 0;
+            const steps = document.querySelectorAll(`[id^="${category}-step-"]`);
+            steps.forEach(step => step.classList.remove('active'));
+            document.getElementById(category + '-controls').classList.add('hidden');
+            document.getElementById(category + '-intro').classList.add('active');
+        }
+
+        // Updates the UI (cards, buttons) based on the current step state
+        function updateStepperUI(category, maxSteps) {
+            const currentStep = stepState[category];
+            
+            // 1. Hide all steps for this category
+            const steps = document.querySelectorAll(`[id^="${category}-step-"]`);
+            steps.forEach(step => step.classList.remove('active'));
+            
+            // 2. Show the specific current step
+            document.getElementById(`${category}-step-${currentStep}`).classList.add('active');
+
+            // 3. Handle Previous Button State (Disable if on Step 1)
+            const prevBtn = document.getElementById(`${category}-btn-prev`);
+            if (currentStep === 1) {
+                prevBtn.disabled = true;
+                prevBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                prevBtn.disabled = false;
+                prevBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+
+            // 4. Handle Next Button State/Text (Change to "Finish" on last step)
+            const nextBtn = document.getElementById(`${category}-btn-next`);
+            if (currentStep === maxSteps) {
+                nextBtn.innerHTML = 'Finish <i class="fa-solid fa-check ml-1"></i>';
+                nextBtn.classList.remove('bg-tech-accent', 'text-tech-dark');
+                nextBtn.classList.add('bg-green-500', 'text-white');
+            } else {
+                nextBtn.innerHTML = 'Next <i class="fa-solid fa-arrow-right ml-1"></i>';
+                nextBtn.classList.add('bg-tech-accent', 'text-tech-dark');
+                nextBtn.classList.remove('bg-green-500', 'text-white');
+            }
+        }
+
+        /**
+         * ---------------------------------------------------------
+         * Dynamic Assessment Question Randomization Logic
+         * ---------------------------------------------------------
+         * Shuffles assessment questions on every page load while re-numbering them.
+         */
+        function shuffleQuizQuestions(containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            const questionBlocks = Array.from(container.children);
+            
+            // Fisher-Yates Shuffle Algorithm
+            for (let i = questionBlocks.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                container.appendChild(questionBlocks[j]);
+                questionBlocks.splice(j, 1);
+            }
+            
+            // Re-number visible indices cleanly
+            const currentBlocks = Array.from(container.children);
+            currentBlocks.forEach((block, index) => {
+                const numSpan = block.querySelector('.q-num');
+                if (numSpan) {
+                    numSpan.textContent = index + 1;
+                }
+            });
+        }
+
+        // Execute question shuffle on page initialization
+        window.addEventListener('DOMContentLoaded', () => {
+            shuffleQuizQuestions('quiz-l1-container');
+            shuffleQuizQuestions('quiz-l2-container');
+        });
+
+        /**
+         * ---------------------------------------------------------
+         * Interactive Assessment & Google Apps Script Integration
+         * ---------------------------------------------------------
+         */
+        const answerKeys = {
+            'Lesson 1': { 
+                l1q1: 'B', l1q2: 'B', l1q3: 'A', l1q4: 'B', l1q5: 'A',
+                l1q6: 'B', l1q7: 'B', l1q8: 'B', l1q9: 'B', l1q10: 'B',
+                l1q11: 'A', l1q12: 'A', l1q13: 'B', l1q14: 'B', l1q15: 'A'
+            },
+            'Lesson 2': { 
+                l2q1: 'B', l2q2: 'B', l2q3: 'A', l2q4: 'B', l2q5: 'B',
+                l2q6: 'B', l2q7: 'B', l2q8: 'A', l2q9: 'B', l2q10: 'C',
+                l2q11: 'A', l2q12: 'B', l2q13: 'B', l2q14: 'A', l2q15: 'B'
+            }
+        };
+
+        function submitQuiz(e, lessonName, totalQuestions) {
+            e.preventDefault();
+            const name = document.getElementById('student-name').value.trim();
+            const grade = document.getElementById('student-grade').value.trim();
+            const section = document.getElementById('student-section').value.trim();
+            const webAppUrl = document.getElementById('web-app-url').value.trim();
+
+            if (!name || !grade || !section) {
+                alert('Please fill out your Student Name, Grade Level, and Section before submitting.');
+                return;
+            }
+
+            let score = 0;
+            const keys = lessonName === 'Lesson 1' ? answerKeys['Lesson 1'] : answerKeys['Lesson 2'];
+            const prefix = lessonName === 'Lesson 1' ? 'l1q' : 'l2q';
+
+            for (let i = 1; i <= totalQuestions; i++) {
+                const selected = document.querySelector(`input[name="${prefix}${i}"]:checked`);
+                if (selected && selected.value === keys[`${prefix}${i}`]) {
+                    score++;
+                }
+            }
+
+            const scoreDisplay = document.getElementById(lessonName === 'Lesson 1' ? 'score-l1' : 'score-l2');
+            scoreDisplay.innerHTML = `<i class="fa-solid fa-award"></i> Score: ${score} / ${totalQuestions}`;
+
+            // Send to Google Sheet if Web App URL is configured
+            if (webAppUrl && webAppUrl.startsWith('http')) {
+                const payload = { name, grade, section, lesson: lessonName, score, total: totalQuestions };
+                fetch(webAppUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                }).then(() => {
+                    alert(`Quiz submitted successfully! Score: ${score}/${totalQuestions}. Data recorded to Google Sheet.`);
+                }).catch(err => {
+                    alert('Submitted locally, but failed to connect to Google Sheet URL.');
+                    console.error(err);
+                });
+            } else {
+                alert(`Quiz calculated locally! Score: ${score}/${totalQuestions}.\n(To sync data with Google Sheets, configure the Google Apps Script Web App URL).`);
+            }
+        }
+
+        // Passcode protection for Answer Keys & Header Setup Instructions
+        function toggleAnswerKey(keyId) {
+            const keyElement = document.getElementById(keyId);
+            if (!keyElement.classList.contains('hidden')) {
+                keyElement.classList.add('hidden');
+                return;
+            }
+            const passcode = prompt('Enter Teacher Passcode to unlock Answer Key & Teacher Features:');
+            // Teacher Passcode Required: P@55w0rd
+            if (passcode === 'P@55w0rd') {
+                keyElement.classList.remove('hidden');
+                // Unhide the "How to Link Sheet" button in the header upon successful authentication
+                const instructionsBtnContainer = document.getElementById('teacher-instructions-btn-container');
+                if (instructionsBtnContainer) {
+                    instructionsBtnContainer.classList.remove('hidden');
+                }
+            } else {
+                alert('Incorrect passcode! Access denied.');
+            }
+        }
+
+        function openInstructionsModal() {
+            document.getElementById('instructions-modal').classList.remove('hidden');
+        }
+
+        function closeInstructionsModal() {
+            document.getElementById('instructions-modal').classList.add('hidden');
+        }
+
+        /**
+         * ---------------------------------------------------------
+         * Lightbox Viewer Logic
+         * ---------------------------------------------------------
+         * Handles the opening and closing of full-size images.
+         */
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        const lightboxCaption = document.getElementById('lightbox-caption');
+
+        // Opens the lightbox, injects the clicked image source and alt text
+        function openLightbox(imageSrc, imageAlt) {
+            lightboxImg.src = imageSrc;
+            lightboxCaption.textContent = imageAlt;
+            lightbox.classList.add('active');
+            
+            // Optional: Prevent background scrolling when lightbox is open
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Closes the lightbox and clears data
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            
+            // Clear out source after animation finishes (300ms) to prevent ghosting on next load
+            setTimeout(() => {
+                lightboxImg.src = "";
+                lightboxCaption.textContent = "";
+            }, 300);
+            
+            // Restore background scrolling
+            document.body.style.overflow = 'auto';
+        }
+
+        // Add event listener to close lightbox if user clicks anywhere outside the image
+        lightbox.addEventListener('click', function(e) {
+            if (e.target === lightbox) {
+                closeLightbox();
+            }
+        });
+        
+        // Add event listener to close lightbox if user presses the Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && lightbox.classList.contains('active')) {
+                closeLightbox();
+            }
+        });
+    </script>
+</body>
+</html>
